@@ -12,7 +12,7 @@ using Soenneker.Utils.HttpClientCache.Abstract;
 
 namespace Soenneker.Lemlist.HttpClients;
 
-///<inheritdoc cref="ILemlistOpenApiHttpClient"/>
+/// <inheritdoc cref="ILemlistOpenApiHttpClient"/>
 public sealed class LemlistOpenApiHttpClient : ILemlistOpenApiHttpClient
 {
     private readonly IHttpClientCache _httpClientCache;
