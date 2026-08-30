@@ -30,7 +30,7 @@ public static class LemlistOpenApiHttpClientRegistrar
     /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddLemlistOpenApiHttpClientAsScoped(this IServiceCollection services)
     {
-        services.AddHttpClientCacheAsSingleton()
+        services.AddHttpClientCacheAsScoped()
                 .TryAddScoped<ILemlistOpenApiHttpClient, LemlistOpenApiHttpClient>();
 
         return services;

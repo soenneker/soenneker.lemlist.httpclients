@@ -1,10 +1,12 @@
 [![](https://img.shields.io/nuget/v/soenneker.lemlist.httpclients.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.lemlist.httpclients/)
+[![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.lemlist.httpclients/build-and-test.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.lemlist.httpclients/actions/workflows/build-and-test.yml)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.lemlist.httpclients/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.lemlist.httpclients/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/nuget/dt/soenneker.lemlist.httpclients.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.lemlist.httpclients/)
+[![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.lemlist.httpclients/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.lemlist.httpclients/actions/workflows/codeql.yml)
 
 # Soenneker.Lemlist.HttpClients
 
-A .NET thread-safe singleton HttpClient for.
+A cached `HttpClient` configured for Lemlist's API and API-key authentication.
 
 ## Install
 
@@ -12,32 +14,33 @@ A .NET thread-safe singleton HttpClient for.
 dotnet add package Soenneker.Lemlist.HttpClients
 ```
 
-## Quick start
+## Configuration
 
-```csharp
-using Soenneker.Lemlist.HttpClients.Registrars;
-using Microsoft.Extensions.DependencyInjection;
-
-var services = new ServiceCollection();
-var result = services.AddLemlistOpenApiHttpClientAsSingleton();
+```json
+{
+  "Lemlist": {
+    "ApiKey": "your-api-key"
+  }
+}
 ```
 
-Adds `LemlistOpenApiHttpClient` as a singleton service.
+Set `Lemlist:ClientBaseUrl` to override the default Lemlist API URL, such as when using a test server.
 
-## What you get
+## Usage
 
-- `ILemlistOpenApiHttpClient` — A .NET thread-safe singleton HttpClient for.
-- `LemlistOpenApiHttpClientRegistrar` — Registers the OpenAPI HttpClient wrapper for dependency injection.
+```csharp
+using Soenneker.Lemlist.HttpClients.Abstract;
+using Soenneker.Lemlist.HttpClients.Registrars;
 
-## API at a glance
+services.AddLemlistOpenApiHttpClientAsSingleton();
 
-| API | What it does | Result / important behavior |
-| --- | --- | --- |
-| `LemlistOpenApiHttpClientRegistrar.AddLemlistOpenApiHttpClientAsSingleton(services)` | Adds `LemlistOpenApiHttpClient` as a singleton service. | The same service collection, so additional registrations can be chained. |
-| `LemlistOpenApiHttpClientRegistrar.AddLemlistOpenApiHttpClientAsScoped(services)` | Adds `LemlistOpenApiHttpClient` as a scoped service. | The same service collection, so additional registrations can be chained. |
+ILemlistOpenApiHttpClient lemlist =
+    serviceProvider.GetRequiredService<ILemlistOpenApiHttpClient>();
 
-## Practical notes
+HttpClient client = await lemlist.Get(cancellationToken);
+HttpResponseMessage response = await client.GetAsync("campaigns", cancellationToken);
+```
 
-- Reuse the registered client instead of constructing one per operation.
-- Calls that return a cached or singleton value reuse the same instance until the owning service is disposed.
-- Dispose instances you own when their scope ends so held resources can be released.
+`Get()` reuses the cached client and applies Lemlist's Basic authentication format. The API key is the password and the username is empty.
+
+The singleton registration shares one client for the application. The scoped registration keeps both the wrapper and its cache within the scope, so disposing one scope cannot evict another scope's client.

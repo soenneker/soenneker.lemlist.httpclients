@@ -5,7 +5,7 @@ using System.Threading;
 namespace Soenneker.Lemlist.HttpClients.Abstract;
 
 /// <summary>
-/// A .NET thread-safe singleton HttpClient for 
+/// Provides a cached HTTP client configured for the Lemlist API.
 /// </summary>
 public interface ILemlistOpenApiHttpClient: IDisposable, IAsyncDisposable
 {
