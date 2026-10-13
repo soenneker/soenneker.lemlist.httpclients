@@ -30,7 +30,7 @@ public sealed class LemlistOpenApiHttpClient : ILemlistOpenApiHttpClient
     {
         return _httpClientCache.Get(nameof(LemlistOpenApiHttpClient), (config: _config, baseUrl: _config["Lemlist:ClientBaseUrl"] ?? _prodBaseUrl), static state =>
         {
-            var apiKey = state.config.GetValueStrict<string>("Lemlist:ApiKey");
+            var apiKey = state.config.GetStringStrict("Lemlist:ApiKey");
             string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($":{apiKey}"));
 
             return new HttpClientOptions
